@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Psycho-Geographical Map of Human Experience</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .quadrant {
+            transition: all 0.3s ease-in-out;
+            border: 1px solid #e2e8f0;
+        }
+        .toggle-bg:after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            background-color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        input:checked + .toggle-bg:after {
+            transform: translateX(24px);
+        }
+        .connecting-line {
+            position: absolute;
+            border-style: dashed;
+            border-color: #fb923c; /* orange-400 */
+            z-index: 0;
+            opacity: 0.8;
+        }
+        .icon {
+            width: 1rem;
+            height: 1rem;
+            margin-right: 0.5rem;
+            display: inline-block;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 p-4 sm:p-6 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900">A Psycho-Geographical Map of Experience</h1>
+            <p class="mt-2 text-slate-600 max-w-3xl mx-auto">Every human activity is a form of psychotechnology that provides training data for our mind. This map charts the landscape of these experiences.</p>
+        </header>
+
+        <!-- Toggle for Individual/Collective View -->
+        <div class="flex justify-center items-center mb-8 space-x-3">
+            <span id="individual-label" class="font-semibold text-slate-900">Individual</span>
+            <label for="field-toggle" class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="field-toggle" class="sr-only peer">
+                <div class="w-12 h-6 bg-slate-300 peer-focus:outline-none rounded-full toggle-bg"></div>
+            </label>
+            <span id="collective-label" class="font-medium text-slate-500">Collective</span>
+        </div>
+
+        <!-- The Map Grid -->
+        <div class="relative grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- X and Y axis labels -->
+            <div class="absolute top-1/2 left-[-4rem] -translate-y-1/2 -rotate-90 text-slate-500 font-semibold hidden lg:block">MODE</div>
+            <div class="absolute bottom-[-3rem] left-1/2 -translate-x-1/2 text-slate-500 font-semibold hidden lg:block">LOCUS</div>
+            <div class="absolute top-[-2rem] left-1/4 -translate-x-1/2 text-slate-500 font-semibold hidden lg:block">Structured / Prescribed</div>
+            <div class="absolute bottom-[-2rem] left-1/4 -translate-x-1/2 text-slate-500 font-semibold hidden lg:block">Unstructured / Emergent</div>
+            <div class="absolute top-1/4 left-[-2.5rem] -translate-y-1/2 text-slate-500 font-semibold hidden lg:block -rotate-90">Internal</div>
+             <div class="absolute top-3/4 left-[-2.5rem] -translate-y-1/2 text-slate-500 font-semibold hidden lg:block -rotate-90">Internal</div>
+            <div class="absolute top-1/4 right-[-2.5rem] -translate-y-1/2 text-slate-500 font-semibold hidden lg:block rotate-90">External</div>
+            <div class="absolute top-3/4 right-[-2.5rem] -translate-y-1/2 text-slate-500 font-semibold hidden lg:block rotate-90">External</div>
+
+
+            <!-- Quadrant I: Internal & Structured -->
+            <div id="q1" class="quadrant bg-white rounded-lg p-6 relative z-10">
+                <h2 class="text-2xl font-bold text-sky-700">The Monastery of the Mind</h2>
+                <p class="text-sm text-slate-600 mt-1 mb-4">The continent of deliberate inner work and skill-building for the psyche.</p>
+                <div class="space-y-2 text-slate-700 text-sm examples individual-view">
+                    <p class="font-semibold mb-2 text-slate-500">Individual Experiences</p>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10c0-4.42-3.58-8-8-8a10 10 0 0 0-4 8"></path></svg>Vipassana Meditation</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Deliberate Study / Memorization</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>Journaling (with prompts)</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"></path><path d="M7.07 14.94c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3c0-1.28-.79-2.4-1.9-2.82"></path><path d="M12.07 10.94c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3c0-1.28-.79-2.4-1.9-2.82"></path><path d="M14.93 5.07c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3c0-1.28-.79-2.4-1.9-2.82"></path></svg>Cognitive Behavioral Therapy (CBT)</div>
+                </div>
+                 <div class="space-y-2 text-slate-700 text-sm examples collective-view hidden">
+                    <p class="font-semibold mb-2 text-slate-500">Collective Experiences</p>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>Guided Group Meditation</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>Shared Contemplative Prayer</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2"></path><path d="M12 14v4"></path><path d="M8 11v-1a4 4 0 1 1 8 0v1"></path><path d="m15 5-1-1-1 1"></path><path d="m9 5 1-1 1 1"></path></svg>Group Therapy Session</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg>Formal Philosophical Debate</div>
+                </div>
+            </div>
+
+            <!-- Quadrant II: External & Structured -->
+            <div id="q2" class="quadrant bg-white rounded-lg p-6 relative z-10">
+                <h2 class="text-2xl font-bold text-rose-700">The Workshop of the World</h2>
+                <p class="text-sm text-slate-600 mt-1 mb-4">The continent of craft, skill, and applied rules in the physical and social world.</p>
+                <div class="space-y-2 text-slate-700 text-sm examples individual-view">
+                    <p class="font-semibold mb-2 text-slate-500">Individual Experiences</p>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 20.562a2 2 0 0 0 1.031.562 2 2 0 0 0 1.938-1.124l.39-1.002a2 2 0 0 1 .53-.82l1.178-1.178a2 2 0 0 0 .562-1.031 2 2 0 0 0-1.124-1.938l-1.002-.39a2 2 0 0 1-.82-.53l-1.178-1.178a2 2 0 0 0-1.031-.562 2 2 0 0 0-1.938 1.124l-.39 1.002a2 2 0 0 1-.53.82l-1.178 1.178a2 2 0 0 0-.562 1.031 2 2 0 0 0 1.124 1.938l1.002.39a2 2 0 0 1 .82.53l1.178 1.178Z"></path><path d="M12 12a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"></path><path d="m19 5-3 3"></path><path d="m6.4 12.6-3 3"></path><path d="M21 12h-2"></path><path d="M3 12H1"></path><path d="m12 3-1 1"></path><path d="M12 21v-2"></path></svg>Craftsmanship (Pottery)</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 21a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-.5Z"></path><path d="M12 17a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-.5Z"></path><path d="M8.5 21a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-.5Z"></path><path d="m12 3-2.5 6h5L12 3Z"></path><path d="M12 10v4"></path><path d="M12 17v4"></path></svg>Practicing a Musical Instrument</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18a4 4 0 0 0-8 0"></path><path d="M12 2v14"></path><path d="M12 2a4 4 0 0 0-4 4v2"></path><path d="M12 2a4 4 0 0 1 4 4v2"></path></svg>Solo Athletic Training</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2v5Z"></path><path d="M18 9h2a2 2 0 0 1 2 2v10l-4-4h-6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2Z"></path></svg>Coding a Program</div>
+                </div>
+                 <div class="space-y-2 text-slate-700 text-sm examples collective-view hidden">
+                    <p class="font-semibold mb-2 text-slate-500">Collective Experiences</p>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>Building a House with a Team</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path><path d="M3.22 12.52a.5.5 0 0 0-.22.68l1.5 2.5a.5.5 0 0 0 .67.22l2.5-1.5a.5.5 0 0 0 .22-.68l-1.5-2.5a.5.5 0 0 0-.67-.22z"></path></svg>Playing a Team Sport</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>Playing in an Orchestra</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V2"></path><path d="M5 12H2a10 10 0 0 0 20 0h-3"></path><path d="M5 12a7 7 0 0 1 14 0"></path><path d="M12 2a7 7 0 0 1 7 7c0 3.5-2 6-5 6.5"></path><path d="M12 2a7 7 0 0 0-7 7c0 3.5 2 6 5 6.5"></path></svg>Performing a Surgical Operation</div>
+                </div>
+            </div>
+
+            <!-- Quadrant III: Internal & Unstructured -->
+            <div id="q3" class="quadrant bg-white rounded-lg p-6 relative z-10">
+                <h2 class="text-2xl font-bold text-amber-700">The Wilderness of the Psyche</h2>
+                <p class="text-sm text-slate-600 mt-1 mb-4">The continent of the untamed, emergent inner world of feeling and imagination.</p>
+                <div class="space-y-2 text-slate-700 text-sm examples individual-view">
+                    <p class="font-semibold mb-2 text-slate-500">Individual Experiences</p>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>Creative Ideation / Daydreaming</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-6 6v6a6 6 0 0 0 6 6 6 6 0 0 0 6-6V9a6 6 0 0 0-6-6Z"></path><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path></svg>Psychedelic Journey ▲</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5.383v13.234"></path><path d="M19.071 19.071A9.957 9.957 0 0 1 12 22a9.957 9.957 0 0 1-7.071-2.929"></path><path d="M4.929 4.929A9.957 9.957 0 0 1 12 2a9.957 9.957 0 0 1 7.071 2.929"></path></svg>Spontaneous Mystical Experience ▲</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2Z"></path><path d="M12 15V7a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4a2 2 0 0 0-2 2Z"></path></svg>Processing Deep Grief ▼</div>
+                </div>
+                 <div class="space-y-2 text-slate-700 text-sm examples collective-view hidden">
+                    <p class="font-semibold mb-2 text-slate-500">Collective Experiences</p>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>Falling in Love ▲</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>Deep, Vulnerable Sharing</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-6M6 20v-4M18 20v-8"></path></svg>Brainstorming Session</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18L12 4z"></path></svg>Shared Sense of Crisis ▼</div>
+                </div>
+            </div>
+
+            <!-- Quadrant IV: External & Unstructured -->
+            <div id="q4" class="quadrant bg-white rounded-lg p-6 relative z-10">
+                <h2 class="text-2xl font-bold text-green-700">The Agora of Experience</h2>
+                <p class="text-sm text-slate-600 mt-1 mb-4">The marketplace of spontaneous interaction, play, and discovery with the world.</p>
+                <div class="space-y-2 text-slate-700 text-sm examples individual-view">
+                    <p class="font-semibold mb-2 text-slate-500">Individual Experiences</p>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path><circle cx="12" cy="10" r="3"></circle></svg>Solo Travel & Exploration</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.55c.5.21 1 .21 1.5 0c1.25-.5 2.5-1.55 4-1.55a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-4.34c-.5 0-1 .21-1.5.5c-1.25.5-2.5 1.55-4 1.55c-.5.21-1 .21-1.5 0c-1.25-.5-2.5-1.55-4-1.55a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2Z"></path><path d="M12 15.39c1.5 0 2.75 1.06 4 1.55c.5.21 1 .21 1.5 0c1.25-.5 2.5-1.55 4-1.55a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-4.34c-.5 0-1 .21-1.5.5c-1.25.5-2.5 1.55-4 1.55c-.5.21-1 .21-1.5 0c-1.25-.5-2.5-1.55-4-1.55a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2Z"></path></svg>A Walk in the Woods</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 10.5 8 13l-2.5-2.5L12 4l9.5 9.5-2.5 2.5L14 13l-1.5 1.5"></path></svg>People-Watching</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>Navigating a Traffic Jam</div>
+                </div>
+                 <div class="space-y-2 text-slate-700 text-sm examples collective-view hidden">
+                    <p class="font-semibold mb-2 text-slate-500">Collective Experiences</p>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"></path><path d="M12 21a9 9 0 0 0-9-9H1l4 4-4 4h2"></path><path d="M13 13a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"></path><path d="M12 3a9 9 0 0 0 9 9h2l-4-4 4-4h-2"></path></svg>Spontaneous Conversation</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>Open-ended Play</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg>Attending a Festival ▲</div>
+                    <div><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 12 8 8"></path><path d="m12 8 4 4"></path><path d="m12 16 4-4"></path><path d="m12 16-4-4"></path></svg>Improvisational Jam Session</div>
+                </div>
+            </div>
+
+            <!-- Meditation Element -->
+            <div id="meditation-hub" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center bg-orange-400 rounded-full w-28 h-28 sm:w-36 sm:h-36 text-white text-center p-2 z-20 shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 sm:w-8 sm:h-8"><path d="M12 1a9.9_9.9_0_0_0_-9.9_9.9c0_3.96_2.9_7.5_7.4_8.9A9.9_9.9_0_0_0_12_23a9.9_9.9_0_0_0_9.9-9.9c0-5.48-4.42-9.9-9.9-9.9Z"/><path d="M12_2a9.9_9.9_0_0_1_9.9_9.9v0"/></svg>
+                <span class="font-bold text-sm sm:text-base mt-1">Meditation</span>
+                <span class="text-xs hidden sm:block">The Integrator</span>
+            </div>
+
+            <!-- Connecting Lines -->
+            <svg class="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
+                <line x1="50%" y1="50%" x2="25%" y2="25%" stroke="#fb923c" stroke-width="2" stroke-dasharray="5,5"/>
+                <line x1="50%" y1="50%" x2="75%" y2="25%" stroke="#fb923c" stroke-width="2" stroke-dasharray="5,5"/>
+                <line x1="50%" y1="50%" x2="25%" y2="75%" stroke="#fb923c" stroke-width="2" stroke-dasharray="5,5"/>
+                <line x1="50%" y1="50%" x2="75%" y2="75%" stroke="#fb923c" stroke-width="2" stroke-dasharray="5,5"/>
+            </svg>
+        </div>
+        <div class="text-center mt-8 text-slate-600 text-sm">
+            <p>▲ = Potential Peak Experience (Flow State / Mystical) | ▼ = Potential Crisis / Traumatic Experience</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggle = document.getElementById('field-toggle');
+            const individualLabel = document.getElementById('individual-label');
+            const collectiveLabel = document.getElementById('collective-label');
+            const individualViews = document.querySelectorAll('.individual-view');
+            const collectiveViews = document.querySelectorAll('.collective-view');
+
+            toggle.addEventListener('change', () => {
+                if (toggle.checked) {
+                    // Collective view
+                    individualLabel.classList.remove('font-semibold', 'text-slate-900');
+                    individualLabel.classList.add('font-medium', 'text-slate-500');
+                    collectiveLabel.classList.add('font-semibold', 'text-slate-900');
+                    collectiveLabel.classList.remove('font-medium', 'text-slate-500');
+
+                    individualViews.forEach(v => v.classList.add('hidden'));
+                    collectiveViews.forEach(v => v.classList.remove('hidden'));
+                } else {
+                    // Individual view
+                    collectiveLabel.classList.remove('font-semibold', 'text-slate-900');
+                    collectiveLabel.classList.add('font-medium', 'text-slate-500');
+                    individualLabel.classList.add('font-semibold', 'text-slate-900');
+                    individualLabel.classList.remove('font-medium', 'text-slate-500');
+                    
+                    collectiveViews.forEach(v => v.classList.add('hidden'));
+                    individualViews.forEach(v => v.classList.remove('hidden'));
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
