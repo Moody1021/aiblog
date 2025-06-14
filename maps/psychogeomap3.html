@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Psycho-Geographical Map of Human Experience</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .quadrant {
+            transition: all 0.3s ease-in-out;
+            border: 1px solid #e2e8f0;
+            min-height: 360px; /* Increased min-height for more content */
+        }
+        .toggle-bg:after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            background-color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        input:checked + .toggle-bg:after {
+            transform: translateX(24px);
+        }
+        .icon {
+            width: 1rem;
+            height: 1rem;
+            margin-right: 0.5rem;
+            display: inline-block;
+            vertical-align: middle;
+            flex-shrink: 0;
+        }
+        .dev-button {
+            transition: all 0.2s ease-in-out;
+            flex-shrink: 0;
+        }
+        .dev-button.active {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .content-container {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .content-container.loading {
+            opacity: 0.5;
+        }
+        .example-item {
+            display: flex;
+            align-items: center;
+        }
+        .axis-label {
+            position: absolute;
+            font-weight: 600;
+            color: #94a3b8; /* slate-400 */
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 p-4 sm:p-6 md:p-12">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="text-center mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900">A Psycho-Geographical Map of Experience</h1>
+            <p class="mt-2 text-slate-600 max-w-3xl mx-auto">An interactive map exploring human activities as psychotechnologies, viewed through different developmental lenses.</p>
+        </header>
+
+        <!-- Controls -->
+        <div class="bg-white/80 backdrop-blur-sm sticky top-4 z-30 p-4 rounded-lg shadow-sm border border-slate-200 mb-12">
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-6">
+                <!-- Field Toggle -->
+                <div class="flex items-center space-x-3">
+                    <span id="individual-label" class="font-semibold text-slate-900 text-sm">Individual</span>
+                    <label for="field-toggle" class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="field-toggle" class="sr-only peer">
+                        <div class="w-12 h-6 bg-slate-300 peer-focus:outline-none rounded-full toggle-bg"></div>
+                    </label>
+                    <span id="collective-label" class="font-medium text-slate-500 text-sm">Collective</span>
+                </div>
+                <!-- Developmental Filter -->
+                <div class="flex flex-wrap justify-center items-center gap-2" id="dev-controls">
+                    <button class="dev-button text-xs px-3 py-1.5 rounded-full font-semibold bg-stone-400 text-white" data-stage="beige">Beige</button>
+                    <button class="dev-button text-xs px-3 py-1.5 rounded-full font-semibold bg-purple-500 text-white" data-stage="purple">Purple</button>
+                    <button class="dev-button text-xs px-3 py-1.5 rounded-full font-semibold bg-red-500 text-white" data-stage="red">Red</button>
+                    <button class="dev-button text-xs px-3 py-1.5 rounded-full font-semibold bg-blue-500 text-white" data-stage="blue">Blue</button>
+                    <button class="dev-button text-xs px-3 py-1.5 rounded-full font-semibold bg-orange-500 text-white active" data-stage="orange">Orange</button>
+                    <button class="dev-button text-xs px-3 py-1.5 rounded-full font-semibold bg-green-500 text-white" data-stage="green">Green</button>
+                    <button class="dev-button text-xs px-3 py-1.5 rounded-full font-semibold bg-teal-500 text-white" data-stage="teal">Teal</button>
+                    <button class="dev-button text-xs px-3 py-1.5 rounded-full font-semibold bg-cyan-500 text-white" data-stage="turquoise">Turquoise</button>
+                    <button class="dev-button text-xs px-3 py-1.5 rounded-full font-semibold bg-indigo-500 text-white" data-stage="indigo">Indigo</button>
+                </div>
+            </div>
+            <div id="stage-description" class="text-center text-sm text-slate-600 mt-4 italic min-h-[20px]"></div>
+        </div>
+
+
+        <!-- The Map Grid -->
+        <div class="relative pt-8 pb-8 pl-8 pr-8">
+            <!-- Axis Labels -->
+            <div class="axis-label hidden md:block" style="top: -1rem; left: 25%; transform: translateX(-50%);">Structured / Prescribed</div>
+            <div class="axis-label hidden md:block" style="top: -1rem; left: 75%; transform: translateX(-50%);">Structured / Prescribed</div>
+            <div class="axis-label hidden md:block" style="bottom: -1rem; left: 25%; transform: translateX(-50%);">Unstructured / Emergent</div>
+            <div class="axis-label hidden md:block" style="bottom: -1rem; left: 75%; transform: translateX(-50%);">Unstructured / Emergent</div>
+            <div class="axis-label hidden md:block" style="left: -1.5rem; top: 25%; transform: translateY(-50%) rotate(-90deg);">Internal</div>
+            <div class="axis-label hidden md:block" style="left: -1.5rem; top: 75%; transform: translateY(-50%) rotate(-90deg);">Internal</div>
+            <div class="axis-label hidden md:block" style="right: -1.5rem; top: 25%; transform: translateY(-50%) rotate(90deg);">External</div>
+            <div class="axis-label hidden md:block" style="right: -1.5rem; top: 75%; transform: translateY(-50%) rotate(90deg);">External</div>
+
+            <div class="relative grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Quadrant I: Internal & Structured -->
+                <div class="quadrant bg-white rounded-lg p-6 relative z-10">
+                    <h2 class="text-2xl font-bold text-sky-700">The Monastery of the Mind</h2>
+                    <p class="text-sm text-slate-600 mt-1 mb-4">Deliberate inner work and skill-building for the psyche.</p>
+                    <div id="q1-content" class="content-container space-y-3 text-slate-700 text-sm"></div>
+                </div>
+
+                <!-- Quadrant II: External & Structured -->
+                <div class="quadrant bg-white rounded-lg p-6 relative z-10">
+                    <h2 class="text-2xl font-bold text-rose-700">The Workshop of the World</h2>
+                    <p class="text-sm text-slate-600 mt-1 mb-4">Craft, skill, and applied rules in the physical and social world.</p>
+                    <div id="q2-content" class="content-container space-y-3 text-slate-700 text-sm"></div>
+                </div>
+
+                <!-- Quadrant III: Internal & Unstructured -->
+                <div class="quadrant bg-white rounded-lg p-6 relative z-10">
+                    <h2 class="text-2xl font-bold text-amber-700">The Wilderness of the Psyche</h2>
+                    <p class="text-sm text-slate-600 mt-1 mb-4">The untamed, emergent inner world of feeling and imagination.</p>
+                    <div id="q3-content" class="content-container space-y-3 text-slate-700 text-sm"></div>
+                </div>
+
+                <!-- Quadrant IV: External & Unstructured -->
+                <div class="quadrant bg-white rounded-lg p-6 relative z-10">
+                    <h2 class="text-2xl font-bold text-green-700">The Agora of Experience</h2>
+                    <p class="text-sm text-slate-600 mt-1 mb-4">Spontaneous interaction, play, and discovery with the world.</p>
+                    <div id="q4-content" class="content-container space-y-3 text-slate-700 text-sm"></div>
+                </div>
+
+                <!-- Meditation Element -->
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center bg-violet-600 rounded-full w-28 h-28 sm:w-36 sm:h-36 text-white text-center p-2 z-20 shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 sm:w-8 sm:h-8"><path d="M12 1a9.9 9.9 0 0 0-9.9 9.9c0 3.96 2.9 7.5 7.4 8.9A9.9 9.9 0 0 0 12 23a9.9 9.9 0 0 0 9.9-9.9c0-5.48-4.42-9.9-9.9-9.9Z"/><path d="M12 2a9.9 9.9 0 0 1 9.9 9.9v0"/></svg>
+                    <span class="font-bold text-sm sm:text-base mt-1">Meditation</span>
+                    <span class="text-xs hidden sm:block">The Integrator</span>
+                </div>
+                
+                <svg class="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
+                    <line x1="50%" y1="50%" x2="25%" y2="25%" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="5,5"/>
+                    <line x1="50%" y1="50%" x2="75%" y2="25%" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="5,5"/>
+                    <line x1="50%" y1="50%" x2="25%" y2="75%" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="5,5"/>
+                    <line x1="50%" y1="50%" x2="75%" y2="75%" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="5,5"/>
+                </svg>
+            </div>
+             <div class="text-center mt-8 text-slate-600 text-xs">
+                <p>This map integrates concepts from Wilber, Spiral Dynamics, Vervaeke, McGilchrist, Levin, Friston & more.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DATA STRUCTURE ---
+        const mapData = {
+            beige: {
+                description: 'Archaic-Instinctual "Why": To survive. Purely instinctual drives for food, water, shelter, and safety.',
+                individual: {
+                    q1: [ { icon: 'brain-circuit', text: 'Instinctual response to stimuli' }, { icon: 'sunrise', text: 'Circadian rhythms' } ],
+                    q2: [ { icon: 'footprints', text: 'Following animal tracks' }, { icon: 'hand', text: 'Grasping a tool (rock)' } ],
+                    q3: [ { icon: 'bone', text: 'Feeling hunger / thirst' }, { icon: 'thermometer', text: 'Feeling cold / hot' } ],
+                    q4: [ { icon: 'trees', text: 'Seeking shelter from rain' }, { icon: 'apple', text: 'Foraging for food' } ]
+                },
+                collective: {
+                    q1: [ { icon: 'users-2', text: 'Mirroring basic emotions' }, { icon: 'footprints', text: 'Instinctive group signaling' } ],
+                    q2: [ { icon: 'users-2', text: 'Coordinated hunt of small game' }, { icon: 'home', text: 'Huddling for warmth' } ],
+                    q3: [ { icon: 'zap', text: 'Shared sense of immediate danger' }, { icon: 'bone', text: 'Collective hunger' } ],
+                    q4: [ { icon: 'users-2', text: 'Following the herd' }, { icon: 'home', text: 'Sharing a temporary shelter' } ]
+                }
+            },
+            purple: {
+                description: 'Magical-Animistic "Why": To appease spirits and find safety in a mysterious world through kinship and ritual.',
+                individual: {
+                    q1: [ { icon: 'sparkles', text: 'Creating a personal talisman' }, { icon: 'eye', text: 'Interpreting omens' }, { icon: 'users-2', text: 'Praying to ancestors' } ],
+                    q2: [ { icon: 'scroll', text: 'Following a purification ritual' }, { icon: 'sparkles', text: 'Mixing a magic potion' }, { icon: 'hammer', text: 'Carving a totem' } ],
+                    q3: [ { icon: 'ghost', text: 'Feeling a spiritual presence' }, { icon: 'heart-crack', text: 'Feeling cursed or blessed' }, { icon: 'eye', text: 'A shamanic vision' } ],
+                    q4: [ { icon: 'trees', text: 'Finding a sacred grove' }, { icon: 'moon', text: 'Observing the moon cycles' }, { icon: 'sparkles', text: 'Leaving an offering' } ]
+                },
+                collective: {
+                    q1: [ { icon: 'scroll', text: 'Passing down oral traditions' }, { icon: 'music-2', text: 'Ritual chanting and drumming' } ],
+                    q2: [ { icon: 'users-2', text: 'Coming-of-age rituals' }, { icon: 'bonfire', text: 'Shamanic ceremonies' }, { icon: 'home', text: 'Blood oaths and kinship pacts' } ],
+                    q3: [ { icon: 'family', text: 'Deep sense of tribal belonging' }, { icon: 'ghost', text: 'Shared belief in spirits/ghosts' } ],
+                    q4: [ { icon: 'bonfire', text: 'Campfire storytelling' }, { icon: 'cemetery-grave', text: 'Performing funeral rites' } ]
+                }
+            },
+            red: {
+                description: 'Egocentric-Power "Why": To assert power, will, and dominance for immediate gratification.',
+                individual: {
+                    q1: [ { icon: 'target', text: 'Concentration for Battle Focus' }, { icon: 'zap', text: 'Visualizing Conquest' }, { icon: 'repeat', text: 'Practicing a "death stare"' } ],
+                    q2: [ { icon: 'barbell', text: 'Powerlifting for Dominance' }, { icon: 'fist', text: 'Practicing Combat Moves' }, { icon: 'swords', text: 'Mastering a Weapon' } ],
+                    q3: [ { icon: 'flame', text: 'Primal Rage / Impulsive Desire' }, { icon: 'skull', text: 'Vengeful Fantasies' }, { icon: 'heart-crack', text: 'Feeling of Betrayal' } ],
+                    q4: [ { icon: 'car', text: 'Street Racing / Thrill-seeking' }, { icon: 'mountain', text: 'Conquering a Physical Challenge' }, { icon: 'graffiti', text: 'Tagging Territory' } ]
+                },
+                collective: {
+                    q1: [ { icon: 'shouting', text: 'Intimidating Interrogation' }, { icon: 'swords', text: 'War Chants / Rituals' } ],
+                    q2: [ { icon: 'trophy', text: 'Playing Sports to Dominate' }, { icon: 'users-2', text: 'Leading a Gang / Tribe' } ],
+                    q3: [ { icon: 'users-2', text: 'Mob Mentality' }, { icon: 'flame', text: 'Shared Bloodlust' } ],
+                    q4: [ { icon: 'swords', text: 'Hazing Rituals / Initiations' }, { icon: 'crown', text: 'Asserting Group Dominance' } ]
+                }
+            },
+            blue: {
+                description: 'Mythic-Order "Why": To find salvation, order, and truth through submission to a higher power or code.',
+                individual: {
+                    q1: [ { icon: 'book-open', text: 'Reading Sacred Texts' }, { icon: 'pray', text: 'Devotional Prayer' }, { icon: 'hand-heart', text: 'Confession of Sins' } ],
+                    q2: [ { icon: 'hammer', text: 'Following a Craft Tradition' }, { icon: 'scale', text: 'Adhering to a Moral Code' }, { icon: 'shield-check', text: 'Military Drill and Discipline' } ],
+                    q3: [ { icon: 'heart-hand', text: 'Feeling Divine Forgiveness' }, { icon: 'eye', text: 'Receiving a Vision of an Angel' }, { icon: 'shield-check', text: 'Certainty in one\'s beliefs' } ],
+                    q4: [ { icon: 'pilgrim', text: 'Going on a Holy Pilgrimage' }, { icon: 'shield-check', text: 'Upholding Traditional Values' }, { icon: 'flag', text: 'Saluting the Flag' } ]
+                },
+                collective: {
+                    q1: [ { icon: 'church', text: 'Attending a Religious Service' }, { icon: 'users-2', text: 'Reciting a Shared Creed' } ],
+                    q2: [ { icon: 'shield-check', text: 'Enforcing Community Rules' }, { icon: 'flag', text: 'Participating in a National Ceremony' } ],
+                    q3: [ { icon: 'heart-hand', text: 'Shared Religious Ecstasy' }, { icon: 'users-2', text: 'Sense of Belonging to the "In-Group"' } ],
+                    q4: [ { icon: 'handshake', text: 'Community Potluck / Gathering' }, { icon: 'parade', text: 'Participating in a Civic Parade' } ]
+                }
+            },
+            orange: {
+                description: 'Achiever-Rational "Why": To achieve success, effectiveness, and progress through rationality and strategy.',
+                individual: {
+                    q1: [ { icon: 'brain-cog', text: 'Mindfulness for Stress Reduction' }, { icon: 'line-chart', text: 'Goal Setting & Strategic Planning' }, { icon: 'dna', text: 'Bio-hacking with data trackers' } ],
+                    q2: [ { icon: 'laptop-2', text: 'Coding for a Startup' }, { icon: 'rocket', text: 'Training for Peak Performance' }, { icon: 'award', text: 'Pursuing a PhD or Advanced Degree' } ],
+                    q3: [ { icon: 'lightbulb', text: 'Scientific "Eureka!" moment' }, { icon: 'dollar-sign', text: 'Visualizing Financial Success' }, { icon: 'puzzle', text: 'Solving a complex problem' } ],
+                    q4: [ { icon: 'network', text: 'Attending a Conference to Network' }, { icon: 'award', text: 'Competing for a Promotion' }, { icon: 'line-chart', text: 'Playing the stock market' } ]
+                },
+                collective: {
+                    q1: [ { icon: 'briefcase', text: 'Corporate Strategy Meeting' }, { icon: 'test-tube', text: 'Scientific Peer Review' } ],
+                    q2: [ { icon: 'factory', text: 'Optimizing a Production Line' }, { icon: 'trophy', text: 'Winning a Team Competition' } ],
+                    q3: [ { icon: 'lightbulb', text: 'Team "Aha!" Moment on a Problem' }, { icon: 'line-chart', text: 'Shared Excitement for Market Growth' } ],
+                    q4: [ { icon: 'landmark', text: 'The Stock Market Floor' }, { icon: 'handshake', text: 'Negotiating a Business Deal' } ]
+                }
+            },
+            green: {
+                description: 'Pluralistic-Sensitive "Why": To foster connection, harmony, and empathy for self and others.',
+                individual: {
+                    q1: [ { icon: 'heart', text: 'Loving-Kindness Meditation' }, { icon: 'person-standing', text: 'Somatic Body Scan for Feelings' }, { icon: 'hand-heart', text: 'Practicing Non-Violent Communication' } ],
+                    q2: [ { icon: 'recycle', text: 'Ethical, Sustainable Crafting' }, { icon: 'scale', text: 'Aligning Actions with Values' }, { icon: 'vegan', text: 'Choosing a plant-based diet' } ],
+                    q3: [ { icon: 'heart-crack', text: 'Journaling to Process Trauma' }, { icon: 'seedling', text: 'Feeling Oneness with Nature (Gaia)' }, { icon: 'globe-2', text: 'Deep empathy for an oppressed group' } ],
+                    q4: [ { icon: 'leaf', text: 'Walking Mindfully in Nature' }, { icon: 'bird', text: 'Volunteering for a Social Cause' }, { icon: 'shopping-cart', text: 'Shopping at a local farmers market' } ]
+                },
+                collective: {
+                    q1: [ { icon: 'users-2', text: 'Group Therapy / Sharing Circle' }, { icon: 'hand-heart', text: 'Consensus-Based Decision Making' } ],
+                    q2: [ { icon: 'sprout', text: 'Building a Community Garden' }, { icon: 'globe-2', text: 'Organizing a Social Justice Protest' } ],
+                    q3: [ { icon: 'hand-heart', text: 'Profound Shared Empathy' }, { icon: 'users-2', text: 'Sense of Belonging in a Community' } ],
+                    q4: [ { icon: 'music-2', text: 'Drum Circle / Ecstatic Dance' }, { icon: 'coffee', text: 'Deep Conversation in a Cafe' } ]
+                }
+            },
+            teal: {
+                description: 'Integral-Systemic "Why": To embody integral awareness and facilitate the emergence of complex, systemic solutions.',
+                individual: {
+                    q1: [ { icon: 'eye', text: 'Witnessing Mind States Arise/Fall' }, { icon: 'layers', text: 'Integrating Shadow Aspects' }, { icon: 'puzzle', text: 'Practicing perspective-taking (3-2-1)' } ],
+                    q2: [ { icon: 'recycle', text: 'Designing a Circular Economy Product' }, { icon: 'person-standing', text: 'Embodying Principles in Action' }, { icon: 'leaf', text: 'Applying biomimicry in design' } ],
+                    q3: [ { icon: 'galaxy', text: 'Non-dual Awareness / Flow State' }, { icon: 'puzzle', text: 'Synthesizing Multiple Perspectives' }, { icon: 'atom', text: 'Experiencing synchronicity as feedback' } ],
+                    q4: [ { icon: 'globe-2', text: 'Perceiving Global Systems on a Walk' }, { icon: 'anchor', text: 'Holding Complexity without Stress' }, { icon: 'dna', text: 'Creating novel forms of art' } ]
+                },
+                collective: {
+                    q1: [ { icon: 'library', text: 'Co-creating a Meta-Model' }, { icon: 'users-2', text: 'Second-Person Spiritual Practice' } ],
+                    q2: [ { icon: 'network', text: 'Facilitating a Multi-Stakeholder System' }, { icon: 'dna', text: 'Designing Evolutionary Organizations' } ],
+                    q3: [ { icon: 'lightbulb', text: 'Emergence of Collective Insight' }, { icon: 'heart-hand', text: 'Holding Space for Group Transformation' } ],
+                    q4: [ { icon: 'atom', text: 'Sensing into the "Adjacent Possible"' }, { icon: 'compass', text: 'Navigating Paradox with a Group' } ]
+                }
+            },
+            turquoise: {
+                description: 'Holonic-Universal "Why": To embody a non-dual, universal consciousness in service of the entire Kosmos.',
+                individual: {
+                    q1: [ { icon: 'galaxy', text: 'Resting in Unqualified Awareness' }, { icon: 'eye', text: 'Dis-identifying from the witness' } ],
+                    q2: [ { icon: 'person-standing', text: 'Living as compassionate action' }, { icon: 'recycle', text: 'Spontaneous right action' } ],
+                    q3: [ { icon: 'atom', text: 'The world arising as Self' }, { icon: 'seedling', text: 'Profound, simple Being' } ],
+                    q4: [ { icon: 'globe-2', text: 'Experiencing planetary consciousness' }, { icon: 'hand-heart', text: 'Serving the whole of life' } ]
+                },
+                collective: {
+                    q1: [ { icon: 'network', text: 'Collective non-dual inquiry' }, { icon: 'users-2', text: 'Transmitting states of consciousness' } ],
+                    q2: [ { icon: 'globe-2', text: 'Creating Gaian governance structures' }, { icon: 'dna', text: 'Initiating deep systemic healing' } ],
+                    q3: [ { icon: 'galaxy', text: 'Shared field of holonic awareness' }, { icon: 'atom', text: 'Collective intelligence emergence' } ],
+                    q4: [ { icon: 'compass', text: 'Responding to planetary needs' }, { icon: 'handshake', text: 'Global problem solving' } ]
+                }
+            },
+            indigo: {
+                description: 'Psychic-Kosmic "Why": To explore and embody transpersonal, psychic, and Kosmic modes of awareness.',
+                individual: {
+                    q1: [ { icon: 'eye', text: 'Cultivating psychic abilities (siddhis)' }, { icon: 'brain-circuit', text: 'Activating subtle energy bodies' } ],
+                    q2: [ { icon: 'moon', text: 'Lucid dreaming into other realms' }, { icon: 'dna', text: 'Conscious interaction with morphic fields' } ],
+                    q3: [ { icon: 'galaxy', text: 'Direct gnosis of Kosmic principles' }, { icon: 'zap', text: 'Experiencing Kundalini awakening' } ],
+                    q4: [ { icon: 'atom', text: 'Interacting with subtle ecologies' }, { icon: 'sparkles', text: 'Manifesting intentions directly' } ]
+                },
+                collective: {
+                    q1: [ { icon: 'network', text: 'Collective remote viewing' }, { icon: 'users-2', text: 'Group field-mind linking' } ],
+                    q2: [ { icon: 'dna', text: 'Co-creating new forms of consciousness' }, { icon: 'globe-2', text: 'Planetary-scale psychic healing' } ],
+                    q3: [ { icon: 'galaxy', text: 'Group access to Akashic records' }, { icon: 'users-2', text: 'Shared lucid dream states' } ],
+                    q4: [ { icon: 'atom', text: 'Inter-species communication' }, { icon: 'compass', text: 'Navigating evolutionary currents' } ]
+                }
+            }
+        };
+
+        const icons = {
+            target: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>',
+            zap: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>',
+            barbell: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"></path><path d="M4 8v8"></path><path d="M20 8v8"></path><path d="M7 7v10"></path><path d="M17 7v10"></path></svg>',
+            fist: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.82 18.18a4 4 0 0 0 5.66 0l.71-.71a4 4 0 0 0 0-5.66l-4.24-4.24a2 2 0 0 0-2.83 0L7.18 13.5a1 1 0 0 0 0 1.41l1.41 1.41a1 1 0 0 0 1.41 0l1.41-1.41"></path><path d="M2.81 15.66a1 1 0 0 0 0 1.41l1.41 1.41a1 1 0 0 0 1.41 0l4.24-4.24a2 2 0 0 0 0-2.83L5.64 7.17a4 4 0 0 0-5.66 0l-.71.71a4 4 0 0 0 0 5.66l2.12 2.12"></path></svg>',
+            flame: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>',
+            skull: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="15" cy="12" r="1"></circle><path d="M8 20v2h8v-2"></path><path d="M12.5 17.5a2.5 2.5 0 0 1-5 0"></path><path d="M12 2a9 9 0 0 0-9 9v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4a9 9 0 0 0-9-9z"></path></svg>',
+            car: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 16H9m10 0h1a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-1m-4 8h-2m-3-5L6 6l-3 5m18 5h-1a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h1m-4 8h-2m11-5-3-5-3 5M3 16h1a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H3v10Z"></path></svg>',
+            mountain: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 3 4 8 5-5 5 15H2L8 3z"></path></svg>',
+            shouting: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8a4 4 0 0 0-4 4v0a4 4 0 0 0 4 4v0a4 4 0 0 0 4-4v0a4 4 0 0 0-4-4Z"></path><path d="M18 16a2 2 0 0 1-2-2"></path><path d="M6 14a2 2 0 0 1 2-2"></path><path d="M12 18v4"></path><path d="M12 2v4"></path><path d="M18 12h4"></path><path d="M2 12h4"></path></svg>',
+            swords: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6l3-3 11.5 11.5"></path><path d="m21 3-3 3"></path><path d="m3 21 3-3"></path><path d="M11.5 6.5 18 13l3-3L11.5 3.5"></path></svg>',
+            trophy: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>',
+            'users-2': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 19a6 6 0 0 0-12 0"></path><circle cx="8" cy="9" r="4"></circle><path d="M22 19a6 6 0 0 0-6-6 4 4 0 1 0 0-8"></path></svg>',
+            crown: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7z"></path><path d="M5 16v4h14v-4"></path></svg>',
+            'book-open': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>',
+            pray: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h1V5a2 2 0 0 0-2-2h-3a4 4 0 0 0-4 4v1"></path><path d="M6 14H5v5a2 2 0 0 0 2 2h3a4 4 0 0 0 4-4v-1"></path></svg>',
+            hammer: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9"></path><path d="M17.64 15 22 10.64"></path><path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.81a5.41 5.41 0 0 0-1.32-3.24 5.4 5.4 0 0 0-3.24-1.32h-.81c-.85 0-1.65.33-2.25.93L9.15 8.44"></path></svg>',
+            scale: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h18"></path></svg>',
+            'heart-hand': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path><path d="M12 12c-2-2.67-4-4-6-4a4 4 0 0 0-4 4v1c0 2.2 1.8 4 4 4h2"></path></svg>',
+            eye: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>',
+            pilgrim: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 7.5 10 5l-2.5 2.5"></path><path d="M12 21v-5l-2.5-2.5"></path><path d="M12 16V7.5"></path><path d="M8 7.5a4 4 0 1 0-4.5 5.9"></path><path d="M16 7.5a4 4 0 1 1 4.5 5.9"></path><circle cx="12" cy="4" r="1"></circle></svg>',
+            'shield-check': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>',
+            church: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 7 4 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9l4-2"></path><path d="M14 22v-4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v4"></path><path d="M18 22V5l-6-3-6 3v17"></path><path d="M12 7v5"></path><path d="M10 9h4"></path></svg>',
+            flag: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" x2="4" y1="22" y2="15"></line></svg>',
+            handshake: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17a2 2 0 0 1-2-2v-2a2 2 0 1 1 4 0v2c0 1.1.9 2 2 2a2 2 0 1 0 0-4h-3a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2"></path><path d="m3 13 5.4-5.4a2 2 0 0 1 2.8 0L17 13"></path><path d="m21 16-4-4"></path></svg>',
+            parade: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 7.5a3.5 3.5 0 0 0-5 0V11a3.5 3.5 0 0 0 5 0V7.5Z"></path><path d="M12.5 12.5a3.5 3.5 0 0 0-5 0V17a3.5 3.5 0 0 0 5 0v-4.5Z"></path><path d="M12.5 17.5a3.5 3.5 0 0 0-5 0V22"></path><path d="M12.5 2.5a3.5 3.5 0 0 1 5 0V7a3.5 3.5 0 0 1-5 0V2.5Z"></path><path d="M17.5 7.5a3.5 3.5 0 0 1 5 0V12a3.5 3.5 0 0 1-5 0V7.5Z"></path><path d="M17.5 12.5a3.5 3.5 0 0 1 5 0V17a3.5 3.5 0 0 1-5 0v-4.5Z"></path></svg>',
+            'brain-cog': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4.5 4.5 0 0 0-4.5 4.5c0 1.4.63 2.7 1.66 3.54C10.74 11.2 12 12.91 12 15v1a2 2 0 0 0 2 2h.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 1 1 0-5H14a2 2 0 0 0-2-2v-1c0-2.09-1.26-3.8-2.84-4.96A4.5 4.5 0 0 0 12 2Z"></path><path d="M19.42 7.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 1 0 0 5Z"></path><path d="M6.08 9.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 1 0 0 5Z"></path></svg>',
+            'line-chart': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg>',
+            'laptop-2': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14h.01"></path><path d="M11.5 14h.01"></path><path d="M8 14h.01"></path><path d="M16 18H5.5A2.5 2.5 0 0 1 3 15.5V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8.5a2.5 2.5 0 0 1-2.5 2.5H8"></path></svg>',
+            rocket: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.3.09-3.1a2 2 0 0 0-2.43-2.43c-.79.61-2.26.62-3.1.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg>',
+            lightbulb: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5C17.7 10.2 18 9 18 7.5a6 6 0 0 0-12 0c0 1.5.3 2.7 1.5 3.5.8.8 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg>',
+            'dollar-sign': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>',
+            network: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="16" y="16" width="6" height="6" rx="1"></rect><rect x="2" y="16" width="6" height="6" rx="1"></rect><rect x="9" y="2" width="6" height="6" rx="1"></rect><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"></path><path d="M12 12V8"></path></svg>',
+            award: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg>',
+            briefcase: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>',
+            'test-tube': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5h0c-1.4 0-2.5-1.1-2.5-2.5V2"></path><path d="M8.5 2h7"></path><path d="M14.5 16h-5"></path></svg>',
+            factory: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"></path></svg>',
+            landmark: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="21" y1="22" y2="22"></line><line x1="6" x2="6" y1="18" y2="11"></line><line x1="10" x2="10" y1="18" y2="11"></line><line x1="14" x2="14" y1="18" y2="11"></line><line x1="18" x2="18" y1="18" y2="11"></line><polygon points="12 2 20 7 4 7"></polygon></svg>',
+            heart: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>',
+            'person-standing': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"></circle><path d="m9 20 3-6 3 6"></path><path d="m6 8 6 2 6-2"></path><path d="M12 10v4"></path></svg>',
+            recycle: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-3.037l5.363-9.116a1.83 1.83 0 0 1 3.14 0l5.363 9.116A1.83 1.83 0 0 1 15.546 19H14"></path><path d="M14 19c0-1.25.4-2.43 1.1-3.35"></path><path d="m14 12.35 1.1.65h.05c.18-.32.38-.63.6-1"></path><path d="M14.65 18.9c.32.18.63.38 1 .6"></path><path d="M18.8 15.65c.18-.32.38-.63.6-1"></path><path d="M20 12h-2"></path><path d="m16.35 6.1-.6.35"></path><path d="M18.6 8.35c.18.32.38.63.6 1H21"></path><path d="M19.1 12.7c-.18.32-.38.63-.6 1"></path></svg>',
+            'heart-crack': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path><path d="m12 13-1-1-1 1-1-1-1 1-1-1-1 1-1-1"></path></svg>',
+            seedling: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v1"></path><path d="M12 18a3 3 0 0 0 3-3V9"></path><path d="M12 18a3 3 0 0 1-3-3V9"></path><path d="M12 22a7 7 0 0 0 7-7V9"></path><path d="M12 22a7 7 0 0 1-7-7V9"></path></svg>',
+            leaf: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 4 13V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="m15.5 5.5 2.5-2.5"></path><path d="M12.5 8.5 15 6"></path><path d="M11 11.5 13.5 9"></path><path d="m20 12-2.5 2.5"></path><path d="m17 14.5-2.5 2.5"></path><path d="m14 17.5-2.5 2.5"></path></svg>',
+            bird: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7.33V2l-4 4-4-4v5.33"/><path d="M16 16a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/><path d="M16 10a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><path d="m20 12-2 2-2-2"/></svg>',
+            'hand-heart': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 14c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"></path><path d="M14 9V5a3 3 0 0 0-3-3l-1 1-1-1a3 3 0 0 0-3 3v4"></path><path d="M14 4.5c.34-.14.7-.24 1.08-.24 1.63 0 3.02.96 3.63 2.34a4 4 0 0 1 .37 1.9V11"></path><path d="M20 15c0 4.4-3.6 8-8 8s-8-3.6-8-8c0-2.95 1.62-5.54 4-6.93"></path></svg>',
+            sprout: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10"></path><path d="M10 20v-6L7 8"></path><path d="M14 20v-6l3-6"></path><path d="M12 4v2"></path><path d="M12 6a2 2 0 0 1 2 2h-4a2 2 0 0 1 2-2z"></path></svg>',
+            'globe-2': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20z"></path><path d="M2 12h20"></path></svg>',
+            'music-2': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="18" r="4"></circle><path d="M12 18V2l4 4"></path></svg>',
+            coffee: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"></path><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path><line x1="6" x2="6" y1="2" y2="4"></line><line x1="10" x2="10" y1="2" y2="4"></line><line x1="14" x2="14" y1="2" y2="4"></line></svg>',
+            layers: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>',
+            galaxy: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2Z"></path><path d="M8.2 11.8C8.2 11.8 10 12 12 12s3.8-.2 3.8-.2"></path><path d="M10.3 16.2c.4.4.9.7 1.7.7s1.3-.3 1.7-.7"></path><path d="M15.5 7.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"></path><path d="M8.5 7.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"></path></svg>',
+            puzzle: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 7V5a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4"></path><path d="M12 12a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h4z"></path><path d="M22 13V9a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path><path d="M16 19h2a2 2 0 0 0 2-2v-2"></path></svg>',
+            anchor: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8"></path><path d="M5 12H2a10 10 0 0 0 20 0h-3"></path><circle cx="12" cy="5" r="3"></circle></svg>',
+            library: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 6 4 14"></path><path d="M12 6v14"></path><path d="M8 8v12"></path><path d="M4 4v16"></path></svg>',
+            dna: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 2.5c-2.5 2.5-2.5 6.5 0 9"></path><path d="M11.5 12.5c2.5 2.5 2.5 6.5 0 9"></path><path d="M18.5 5.5c-2.5-2.5-6.5-2.5-9 0"></path><path d="M5.5 18.5c2.5 2.5 6.5 2.5 9 0"></path><path d="m15 8-4-4"></path><path d="m9 17-3-3"></path></svg>',
+            atom: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.54 4.52 9.87 6.54 11.9 4.5z"></path><path d="M3.8 20.2c-2.04-2.03.02-7.36 4.5-11.9 4.52-4.54 9.87-6.54 11.9-4.5 2.03 2.04.02 7.36-4.5 11.9-4.52 4.54-9.87 6.54-11.9 4.5z"></path></svg>',
+            compass: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>',
+            repeat: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"></path><path d="M3 11v-1a4 4 0 0 1 4-4h14"></path><path d="m7 22-4-4 4-4"></path><path d="M21 13v1a4 4 0 0 1-4 4H3"></path></svg>',
+            graffiti: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18v-4a2 2 0 0 1 2-2h4v10H6a2 2 0 0 1-2-2Z"></path><path d="M9 12a4 4 0 1 0 8 0 4 4 0 1 0-8 0Z"></path><path d="M12 12v6"></path><path d="M19 12h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-2v-6Z"></path><path d="M12 8V2"></path></svg>',
+            family: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path><path d="M19 22a2 2 0 0 0 2-2v-1c0-2.2-1.8-4-4-4h-1a2 2 0 0 1-2-2v-1a3 3 0 0 0-3-3H9a3 3 0 0 0-3 3v1a2 2 0 0 1-2 2h-1c-2.2 0-4 1.8-4 4v1a2 2 0 0 0 2 2Z"></path></svg>',
+            clock: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
+            'pen-tool': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19 7-7 3 3-7 7-3-3z"></path><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="m2 2 7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>',
+            vegan: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7H2v10z"></path><path d="m12 15 3-3-6-6-3 3 6 6z"></path><path d="M22 7 12 2 2 7"></path></svg>',
+            'shopping-cart': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>',
+            home: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>',
+            'brain-circuit': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4.5 4.5 0 0 0-4.5 4.5c0 1.4.63 2.7 1.66 3.54C10.74 11.2 12 12.91 12 15v1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v1a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-1a2 2 0 0 1-2-2h-1a2 2 0 0 0-2-2v-1c0-2.09-1.26-3.8-2.84-4.96A4.5 4.5 0 0 0 12 2Z"></path><path d="M3.5 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 1 0 0 5Z"></path><path d="M18.5 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 1 0 0 5Z"></path></svg>',
+            sunrise: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"></path><path d="m4.93 10.93 1.41 1.41"></path><path d="M2 18h20"></path><path d="M18.36 12.36a9 9 0 0 1-12.73 0"></path><path d="M12 18a4 4 0 0 0 4-4H8a4 4 0 0 0 4 4z"></path></svg>',
+            footprints: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v-2.38c0-.9.6-1.7 1.4-2.1L12 9l6.6 2.52c.8.4 1.4 1.2 1.4 2.1V16"></path><path d="M12 13.5V22"></path><path d="M17 19l-5-2.5-5 2.5"></path><path d="M16 3.13a3 3 0 0 1 0 5.74"></path><path d="M8 3.13a3 3 0 0 0 0 5.74"></path></svg>',
+            hand: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"></path><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"></path><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-4c-2.2 0-4-1.8-4-4V8a2 2 0 1 1 4 0"></path></svg>',
+            bone: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12c-2.5 0-5 2.5-5 5s2.5 5 5 5 5-2.5 5-5-2.5-5-5-5Z"></path><path d="M12 2a5 5 0 0 0-5 5c0 1.5.7 3.1 1.8 4.2"></path><path d="m14.2 11.2 5 5"></path><path d="m4.8 11.2-5 5"></path><path d="M12 12V2"></path></svg>',
+            thermometer: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg>',
+            trees: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 10v.2A3 3 0 0 1 8.9 16v0H5v0h0a3 3 0 0 1-1-5.8V10a3 3 0 0 1 6 0Z"></path><path d="M7 16v8"></path><path d="M17 19v3"></path><path d="M12 19v3"></path><path d="M17 10v.2a3 3 0 0 1-1.1 2.8V10a3 3 0 0 1 6 0Z"></path><path d="M19 16v3"></path></svg>',
+            apple: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.94c1.5 0 2.75-1.06 4-1.55a2 2 0 0 0 1.5-.21c1.25-.5 2.5-1.55 4-1.55a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-4.34a2 2 0 0 1-1.5-.5c-1.25-.5-2.5-1.55-4-1.55a2 2 0 0 0-1.5.21c-1.25.5-2.5 1.55-4 1.55a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4.34a2 2 0 0 1 1.5.5Z"></path><path d="M8 14v-2"></path></svg>',
+            sparkles: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 1.9-1.9-1.9-1.9 1.9-1.9-1.9L3 3l1.9 1.9L3 6.8l1.9 1.9L3 10.6l1.9 1.9L3 14.4l1.9 1.9-1.9 1.9 1.9 1.9 1.9-1.9 1.9 1.9 1.9-1.9 1.9 1.9 1.9-1.9 1.9 1.9 1.9-1.9-1.9-1.9 1.9-1.9-1.9-1.9 1.9-1.9-1.9-1.9 1.9-1.9-1.9-1.9Z"></path></svg>',
+            scroll: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h10v2a2 2 0 0 0 4 0V5a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4Z"></path></svg>',
+            ghost: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 10h.01"></path><path d="M15 10h.01"></path><path d="M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z"></path></svg>',
+            moon: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>',
+            bonfire: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12c0-2.5 2-2.5 2-5s-2-2.5-2-5c0-2.5-2-2.5-2-5s2-2.5 2-5"></path><path d="M12 22a2 2 0 0 1-2-2h4a2 2 0 0 1-2 2Z"></path><path d="m14 16-2 2-2-2"></path><path d="M12 14v-2"></path><path d="m10 12-1.5 1.5"></path><path d="m14 12 1.5 1.5"></path></svg>',
+            'cemetery-grave': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-6"></path><path d="M4 16c0-2.2 1.8-4 4-4h8a4 4 0 0 1 4 4v2H4v-2Z"></path><path d="M10 12V6"></path><path d="M14 12V6"></path></svg>'
+        };
+        // Add a few more missing icons for edge cases
+        icons.graffiti = icons.fist;
+        icons['pen-tool'] = icons.hammer;
+        icons['shopping-cart'] = icons.briefcase;
+        icons.home = icons.church;
+        icons.clock = icons.sunrise;
+        icons.vegan = icons.leaf;
+        icons.family = icons['users-2'];
+
+
+        // --- UI ELEMENTS ---
+        const fieldToggle = document.getElementById('field-toggle');
+        const individualLabel = document.getElementById('individual-label');
+        const collectiveLabel = document.getElementById('collective-label');
+        const devButtons = document.querySelectorAll('.dev-button');
+        const stageDescription = document.getElementById('stage-description');
+        
+        // --- STATE VARIABLES ---
+        let currentField = 'individual';
+        let currentStage = 'orange';
+
+        // --- FUNCTIONS ---
+        function updateMap() {
+            const stageData = mapData[currentStage];
+            if (!stageData) return;
+
+            // Update stage description
+            stageDescription.textContent = stageData.description;
+
+            const fieldData = stageData[currentField];
+            if (!fieldData) return;
+
+            for (let i = 1; i <= 4; i++) {
+                const quadrantKey = `q${i}`;
+                const contentEl = document.getElementById(`${quadrantKey}-content`);
+                const examples = fieldData[quadrantKey];
+
+                if (contentEl && examples) {
+                    contentEl.classList.add('loading');
+                    
+                    let html = examples.map(item => `
+                        <div class="example-item">${icons[item.icon] || ''}<span>${item.text}</span></div>
+                    `).join('');
+
+                    // Use a short timeout to allow the loading class to apply before changing content
+                    setTimeout(() => {
+                        contentEl.innerHTML = html;
+                        contentEl.classList.remove('loading');
+                    }, 150);
+                }
+            }
+        }
+
+        function handleFieldToggle() {
+            if (fieldToggle.checked) {
+                currentField = 'collective';
+                individualLabel.classList.remove('font-semibold', 'text-slate-900');
+                individualLabel.classList.add('font-medium', 'text-slate-500');
+                collectiveLabel.classList.add('font-semibold', 'text-slate-900');
+                collectiveLabel.classList.remove('font-medium', 'text-slate-500');
+            } else {
+                currentField = 'individual';
+                collectiveLabel.classList.remove('font-semibold', 'text-slate-900');
+                collectiveLabel.classList.add('font-medium', 'text-slate-500');
+                individualLabel.classList.add('font-semibold', 'text-slate-900');
+                individualLabel.classList.remove('font-medium', 'text-slate-500');
+            }
+            updateMap();
+        }
+
+        function handleStageSelect(e) {
+            currentStage = e.target.dataset.stage;
+            devButtons.forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            updateMap();
+        }
+
+        // --- EVENT LISTENERS ---
+        fieldToggle.addEventListener('change', handleFieldToggle);
+        devButtons.forEach(btn => btn.addEventListener('click', handleStageSelect));
+
+        // --- INITIALIZE ---
+        updateMap();
+    });
+    </script>
+</body>
+</html>
